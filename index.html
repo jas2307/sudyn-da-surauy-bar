@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Судың да сұрауы бар</title>
+    <style>
+        :root {
+            --primary-color: #00f2ff; /* Neon Cyan */
+            --secondary-color: #0044ff; /* Deep Blue */
+            --bg-color: #050a14; /* Dark Space */
+            --panel-bg: rgba(10, 20, 40, 0.85);
+            --text-color: #e0f7fa;
+            --accent-color: #ff0055;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 68, 255, 0.1) 0%, transparent 20%);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Scanline effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 242, 255, 0.02) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Futuristic Header */
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .sound-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            z-index: 100;
+        }
+
+        .sound-toggle.active {
+            background: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--primary-color);
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--primary-color);
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        /* Modules (Sections) */
+        .module {
+            display: none;
+            background: var(--panel-bg);
+            border: 1px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+            animation: fadeIn 0.8s ease-out;
+            position: relative;
+        }
+
+        .module.active {
+            display: block;
+        }
+
+        /* Decorative Corners */
+        .module::before, .module::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary-color);
+            transition: all 0.3s;
+        }
+
+        .module::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+        .module::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+        h2 {
+            border-left: 5px solid var(--primary-color);
+            padding-left: 15px;
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .objective {
+            background: rgba(0, 68, 255, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--secondary-color);
+        }
+
+        /* Inputs & Textareas */
+        input[type="text"], textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--secondary-color);
+            color: var(--text-color);
+            padding: 15px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-sizing: border-box; /* Fix padding issue */
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 10px 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: var(--primary-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+
+        button:disabled {
+            border-color: gray;
+            color: gray;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        th, td {
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(0, 68, 255, 0.3);
+            color: var(--primary-color);
+        }
+
+        /* Rule Box */
+        .rule-box {
+            border: 1px dashed var(--primary-color);
+            padding: 15px;
+            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .rule-title {
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Notification */
+        #system-log {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--primary-color);
+            padding: 10px 20px;
+            font-family: monospace;
+            color: var(--primary-color);
+            display: none;
+            z-index: 1000;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Reading Text Styles */
+        .reading-text {
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 3px solid var(--accent-color);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <button id="soundBtn" class="sound-toggle" onclick="toggleSound()">🔊 Дыбыс: ӨШІРУЛІ</button>
+        <h1>СУДЫҢ ДА СҰРАУЫ БАР</h1>
+        <div class="subtitle">5-сынып | Интерактивті оқыту модулі v1.0</div>
+    </header>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- MODULE 0: Intro -->
+    <div class="module active" id="module-0">
+        <h2>Жүйеге қош келдіңіз</h2>
+        <p>Сәлем, жас зерттеуші! Бүгін біз судың маңызын және тілдік құпияларды зерттейтін боламыз.</p>
+        <div class="objective">
+            <strong>Оқу мақсаты:</strong> 6.2.1.1 мәтіннен негізгі және қосымша, детальді ақпаратты анықтау, түсіндіру; 6.4.4.1 сөйлемдегі (жіктеу) есімдіктің қызметін түсіну, есімдікті зат есім, сын есімнің орнына қолдану;
+        </div>
+        <p>Жүйе дайын. Миссияны бастау үшін "БАСТАУ" түймесін басыңыз.</p>
+        <div class="btn-group" style="justify-content: center;">
+            <button onclick="startMission()">БАСТАУ</button>
+        </div>
+    </div>
+
+    <!-- MODULE 1: Brainstorming -->
+    <div class="module" id="module-1">
+        <h2>1-Кезең: Ой шақыру</h2>
+        <p>Төмендегі сұрақтарға өз ойыңызды қысқаша жазыңыз:</p>
+        
+        <label>1. Тіршілік нәрі деп нені айтамыз?</label>
+        <input type="text" placeholder="Жауабыңыз..." onfocus="playFocusSound()">
+
+        <label>2. «Судың да сұрауы бар» деген нені білдіреді?</label>
+        <input type="text" placeholder="Жауабыңыз..." onfocus="playFocusSound()">
+
+        <label>3. Суды ысырап етудің салдары қандай?</label>
+        <input type="text" placeholder="Жауабыңыз..." onfocus="playFocusSound()">
+
+        <div class="btn-group">
+            <button onclick="prevModule()">АРТҚА</button>
+            <button onclick="saveAndNext()">Деректерді жіберу</button>
+        </div>
+    </div>
+
+    <!-- MODULE 2: Task 1 (Cyclone) -->
+    <div class="module" id="module-2">
+        <h2>2-Кезең: Су циклоны</h2>
+        <div class="objective">Тапсырма: Тақырыпқа қатысты кілт сөздер мен болжамдарды жазыңыз.</div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Негізгі сөз (Ассоциация)</th>
+                    <th>Болжам (Болашақ)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="text" placeholder="Мысалы: Өмір..." onfocus="playFocusSound()"></td>
+                    <td><input type="text" placeholder="Су таусылса..." onfocus="playFocusSound()"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" placeholder="Сөз 2..." onfocus="playFocusSound()"></td>
+                    <td><input type="text" placeholder="Болжам 2..." onfocus="playFocusSound()"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" placeholder="Сөз 3..." onfocus="playFocusSound()"></td>
+                    <td><input type="text" placeholder="Болжам 3..." onfocus="playFocusSound()"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="btn-group">
+            <button onclick="prevModule()">АРТҚА</button>
+            <button onclick="saveAndNext()">Жүктеу</button>
+        </div>
+    </div>
+
+    <!-- MODULE 3: Task 2 (Data Scanner) -->
+    <div class="module" id="module-3">
+        <h2>3-Кезең: Деректер сканері</h2>
+        <div class="objective">Тапсырма: Мәтінді оқып, сандық ақпараттарды (фактілерді) теріп жазыңыз.</div>
+
+        <div class="reading-text">
+            <strong>Мәтін:</strong><br>
+            Жер шарының 71%-ын су алып жатыр. Алайда, оның тек 2.5-3%-ы ғана ішуге жарамды тұщы су.
+            Ғалымдардың айтуынша, қазіргі таңда әлемде 2 миллиардқа жуық адам таза ауыз суға зәру.
+            Орташа есеппен қала тұрғыны тәулігіне шамамен 200 литр су жұмсайды. Егер үйдегі су шүмегі бұзылып,
+            тамшылап тұрса, бір тәулікте 100 литрге дейін су босқа ағады.
+        </div>
+
+        <label>Сканерленген деректер (Сандық фактілерді енгізіңіз):</label>
+        <textarea rows="4" placeholder="Мысалы: Жердің 71%-ы су..." onfocus="playFocusSound()"></textarea>
+
+        <div class="btn-group">
+            <button onclick="prevModule()">АРТҚА</button>
+            <button onclick="saveAndNext()">Талдау</button>
+        </div>
+    </div>
+
+    <!-- MODULE 4: Task 3 (Grammar) -->
+    <div class="module" id="module-4">
+        <h2>4-Кезең: Тілдік бағдар</h2>
+        
+        <div class="rule-box">
+            <span class="rule-title">ЖАДНАМА: Есімдіктер</span>
+            <p><strong>Жіктеу есімдігі:</strong> Мен, Сен, Ол, Біз, Сендер, Олар.<br>
+            <em>Мысалы:</em> <strong>Біз</strong> суды қорғаймыз.</p>
+            <p><strong>Сілтеу есімдігі:</strong> Бұл, Сол, Осы, Анау, Мына.<br>
+            <em>Мысалы:</em> <strong>Бұл</strong> – үлкен мәселе.</p>
+        </div>
+
+        <p>Төмендегі сөйлемді оқып, есімдіктерді табыңыз және олардың түрін жазыңыз:</p>
+        <div class="reading-text">
+            "Мен табиғатты аялаймын. Сол себепті суды үнемдеймін."
+        </div>
+
+        <label>Талдау нәтижесі:</label>
+        <input type="text" placeholder="Мысалы: Мен - жіктеу есімдігі..." onfocus="playFocusSound()">
+
+        <div class="btn-group">
+            <button onclick="prevModule()">АРТҚА</button>
+            <button onclick="saveAndNext()">Растау</button>
+        </div>
+    </div>
+
+    <!-- MODULE 5: Task 4 (RAFT) -->
+    <div class="module" id="module-5">
+        <h2>5-Кезең: RAFT әдісі (Үндеу)</h2>
+        <div class="objective">Тапсырма: Суды үнемдеу туралы шағын үндеу (хат) жазыңыз. Кем дегенде 3 есімдік қолданыңыз.</div>
+
+        <div class="reading-text" style="border-color: var(--primary-color);">
+            <strong>Рөл:</strong> Табиғат қорғаушысы<br>
+            <strong>Аудитория:</strong> Сыныптастар<br>
+            <strong>Тақырып:</strong> Суды үнемдеу
+        </div>
+
+        <textarea rows="6" placeholder="Хат мәтінін осында жазыңыз..." onfocus="playFocusSound()"></textarea>
+
+        <div class="btn-group">
+            <button onclick="prevModule()">АРТҚА</button>
+            <button onclick="saveAndNext()">Жіберу</button>
+        </div>
+    </div>
+
+    <!-- MODULE 6: Reflection & Homework -->
+    <div class="module" id="module-6">
+        <h2>Миссия аяқталды!</h2>
+        <p>Жүйе деректерді өңдеуде...</p>
+
+        <h3>Рефлексия:</h3>
+        <ul>
+            <li>Бүгін мен нені үйрендім?</li>
+            <li>Маған не қиын болды?</li>
+            <li>Мен нені болашақта қолданамын?</li>
+        </ul>
+
+        <div class="rule-box">
+            <span class="rule-title">ҮЙ ТАПСЫРМАСЫ</span>
+            <p>«Суды ысырап етуді тоқтататын 3 әдіс» тақырыбында шағын эссе жазу. Қолданылған есімдіктердің астын сызу.</p>
+        </div>
+
+        <div class="btn-group" style="justify-content: center;">
+            <button onclick="location.reload()">ЖҮЙЕНІ ҚАЙТА ҚОСУ</button>
+        </div>
+    </div>
+
+</div>
+
+<div id="system-log">Жүйелік хабарлама...</div>
+
+<script>
+    let currentModule = 0;
+    const totalModules = 7;
+    let audioCtx = null;
+    let soundEnabled = false;
+
+    // --- SOUND ENGINE (Synthesizer) ---
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        const btn = document.getElementById('soundBtn');
+        if (soundEnabled) {
+            initAudio();
+            btn.innerText = "🔊 Дыбыс: ҚОСУЛЫ";
+            btn.classList.add('active');
+            playStartSound(); // Test sound
+        } else {
+            btn.innerText = "🔊 Дыбыс: ӨШІРУЛІ";
+            btn.classList.remove('active');
+        }
+    }
+
+    function playTone(freq, type, duration, vol = 0.1) {
+        if (!soundEnabled || !audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playClickSound() {
+        // High pitch futuristic bleep
+        playTone(1200, 'sine', 0.1, 0.05);
+    }
+
+    function playBackSound() {
+        // Lower pitch for back
+        playTone(400, 'triangle', 0.15, 0.05);
+    }
+
+    function playStartSound() {
+        if (!soundEnabled || !audioCtx) return;
+        // Power up sound sweep
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+    }
+
+    function playProcessSound() {
+        if (!soundEnabled || !audioCtx) return;
+        // Sci-fi data processing sound (rapid random bleeps)
+        const now = audioCtx.currentTime;
+        for(let i=0; i<5; i++) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.value = 1000 + Math.random() * 2000;
+            osc.type = 'square';
+            gain.gain.setValueAtTime(0.03, now + i*0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i*0.05 + 0.03);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + i*0.05);
+            osc.stop(now + i*0.05 + 0.03);
+        }
+    }
+
+    function playFocusSound() {
+        // Very subtle short blip when clicking input
+        playTone(2000, 'sine', 0.05, 0.02);
+    }
+
+    // --- NAVIGATION LOGIC ---
+
+    function startMission() {
+        // Auto-enable sound on first user interaction if they haven't toggled it yet, 
+        // but best practice is let them choose. We'll just try to init context.
+        initAudio();
+        if(!soundEnabled) {
+             // Optional: Auto enable sound on start? Let's just prompt via the button.
+             // But let's play the effect if it IS enabled.
+        }
+        playStartSound();
+        nextModule();
+    }
+
+    function updateProgress() {
+        const percent = (currentModule / (totalModules - 1)) * 100;
+        document.getElementById('progressBar').style.width = percent + '%';
+    }
+
+    function showSystemLog(message) {
+        const log = document.getElementById('system-log');
+        log.innerText = "> " + message;
+        log.style.display = 'block';
+        setTimeout(() => {
+            log.style.display = 'none';
+        }, 3000);
+    }
+
+    function nextModule() {
+        playClickSound();
+        if (currentModule < totalModules - 1) {
+            document.getElementById(`module-${currentModule}`).classList.remove('active');
+            currentModule++;
+            document.getElementById(`module-${currentModule}`).classList.add('active');
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+    }
+
+    function prevModule() {
+        playBackSound();
+        if (currentModule > 0) {
+            document.getElementById(`module-${currentModule}`).classList.remove('active');
+            currentModule--;
+            document.getElementById(`module-${currentModule}`).classList.add('active');
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+    }
+
+    function saveAndNext() {
+        playProcessSound();
+        
+        const messages = [
+            "Деректер базаға жазылуда...",
+            "Жауап қабылданды...",
+            "Талдау жүргізілуде...",
+            "Синхрондау сәтті өтті..."
+        ];
+        const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+        
+        showSystemLog(randomMsg);
+        
+        // Small delay to simulate processing
+        setTimeout(() => {
+            nextModule();
+        }, 800); // Increased delay slightly for sound effect
+    }
+
+    // Initialize
+    updateProgress();
+</script>
+
+</body>
+</html>
